@@ -6,6 +6,7 @@
 	let optSupplements = 0;
 	let nbSupplements;
 	let tacos = { viandes: [], sauces: [], supplements: [] };
+	let charQueue = [];
 
 	let url = {
 		"Cordon bleu": "cordon-blue",
@@ -53,6 +54,7 @@
 		Fanta: "fanta",
 		Tropico: "tropico",
 	};
+
 	$: {
 		let tailles = {
 			M: 1,
@@ -135,7 +137,17 @@
 
 		tacos.supplements = supplementsChoisis;
 	}
+
+	let handleKeydown = (e) => {
+		charQueue.push(e.key);
+		if (charQueue.slice(-8).join("") == "pioupiou") {
+			tacos.viandes = ["Nuggets"];
+			tacos.sauces = ["Andalouse"];
+		}
+	};
 </script>
+
+<svelte:window on:keydown={handleKeydown} />
 
 <div class="sidebar">
 	<input
