@@ -2,34 +2,31 @@
 	let optTaille = "M";
 	let optDoublePoulet = false;
 	let optTenders = false;
-	let optSupplements = 5;
+	let optFalafels = false;
+	let optSupplements = 0;
 	let nbSupplements;
 	let tacos = { viandes: [], sauces: [], supplements: [] };
 	let charQueue = [];
 
 	let url = {
-		"Cordon bleu": "cordon-blue",
-		Nuggets: "nuggets",
-		"Poulet mariné": "chicken-marinated",
 		"Poulet nature": "chicken",
-		Tenders: "tenders",
+		"Poulet mariné": "chicken-marinated",
 		"Viande hachée": "chopped-meat",
 		Merguez: "sausage",
+		Nuggets: "nuggets",
+		"Cordon bleu": "cordon-blue",
+		Tenders: "tenders",
 		Falafels: "falafel",
 
-		Ketchup: "ketchup",
 		Algerienne: "algerian",
 		Barbecue: "bbq",
 		Biggy: "biggy",
-		Andalouse: "andalouse",
 		"Chili-thai": "thai-chili",
-		Mayonnaise: "mayonnaise",
-		Samourai: "samourai",
-		Harissa: "harissa",
 		Curry: "curry",
 		Fuego: "fuego",
-		Tabasco: "tabasco",
-		"Texane Pepper": "texane-pepper",
+		Ketchup: "ketchup",
+		Mayonnaise: "mayonnaise",
+		Samourai: "samourai",
 
 		Gouda: "gouda",
 		Oignons: "caramelized-onions",
@@ -54,15 +51,20 @@
 		Tropico: "tropico",
 	};
 
-	$: {
-		let tailles = {
-			M: 1,
-			L: 2,
-			XL: 3,
-		};
+	let tailles = {
+		M: 1,
+		L: 2,
+		XL: 3,
+	};
 
+	$: {
+		tacos.viandes = choisirViandes(optTaille);
+		tacos.sauces = choisirSauces();
+		tacos.supplements = choisirSupplements(optSupplements);
+	}
+
+	let choisirViandes = (taille) => {
 		let viandeChoisis = [];
-		let saucesChoisis = [];
 
 		let viandes = [
 			"Cordon bleu",
@@ -70,42 +72,46 @@
 			"Poulet nature",
 			"Viande hachée",
 			"Merguez",
-			"Falafels",
-		];
-
-		let sauces = [
-			"Ketchup",
-			"Algerienne",
-			"Barbecue",
-			"Biggy",
-			"Andalouse",
-			"Chili-thai",
-			"Mayonnaise",
-			"Samourai",
-			"Harissa",
-			"Curry",
-			"Fuego",
-			"Tabasco",
-			"Texane Pepper",
 		];
 
 		if (optDoublePoulet) viandes.push("Poulet mariné");
 		if (optTenders) viandes.push("Tenders");
+		if (optFalafels) viandes.push("Falafels");
 
-		for (let i = 0; i < tailles[optTaille]; i++) {
+		for (let i = 0; i < tailles[taille]; i++) {
 			let randomViande = Math.floor(Math.random() * viandes.length);
 			viandeChoisis.push(viandes[randomViande]);
 			viandes.splice(randomViande, 1);
+		}
 
+		return viandeChoisis;
+	};
+
+	let choisirSauces = () => {
+		let saucesChoisis = [];
+
+		let sauces = [
+			"Algerienne",
+			"Barbecue",
+			"Biggy",
+			"Chili-thai",
+			"Curry",
+			"Fuego",
+			"Ketchup",
+			"Mayonnaise",
+			"Samourai",
+		];
+
+		for (let i = 0; i < 2; i++) {
 			let randomSauce = Math.floor(Math.random() * sauces.length);
 			saucesChoisis.push(sauces[randomSauce]);
 			sauces.splice(randomSauce, 1);
 		}
 
-		tacos.viandes = viandeChoisis;
-		tacos.sauces = saucesChoisis;
-	}
-	$: {
+		return saucesChoisis;
+	};
+
+	let choisirSupplements = (nb) => {
 		let supplementsChoisis = [];
 
 		let supplements = [
@@ -125,7 +131,7 @@
 			"Jalapeno",
 		];
 
-		nbSupplements = Math.max(optSupplements, 0);
+		nbSupplements = Math.max(nb, 0);
 		nbSupplements = Math.min(nbSupplements, 14);
 
 		for (let i = 0; i < nbSupplements; i++) {
@@ -134,47 +140,68 @@
 			supplements.splice(random, 1);
 		}
 
-		tacos.supplements = supplementsChoisis;
-	}
+		return supplementsChoisis;
+	};
 
 	let handleKeydown = (e) => {
 		charQueue.push(e.key);
 		if (charQueue.slice(-8).join("") == "pioupiou") {
 			tacos.viandes = ["Nuggets"];
-			tacos.sauces = ["Andalouse"];
+			tacos.sauces = ["Mayonnaise"];
 		}
 	};
+
+	function handleClick() {
+		tacos.viandes = choisirViandes(optTaille);
+		tacos.sauces = choisirSauces();
+		tacos.supplements = choisirSupplements(optSupplements);
+	}
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
 
 <div class="header">
-	<img src="/images/logo.png" alt="" height="52px" class="logo" />
+	<img src="/images/logo_text.svg" alt="" height="52px" class="logo" />
 	<img src="/images/folder.svg" alt="" height="14px" class="icon disabled" />
 </div>
 <main>
 	<div class="optBar">
-		<div class="optItem">
-			<label for="optSupplements">Suppléments</label><input
-				id="optSupplements"
-				type="number"
-				min="0"
-				max="14"
-				bind:value={optSupplements}
-			/>
+		<div class="optItems">
+			<div class="optItem">
+				<label for="optSupplements">Suppléments</label><input
+					id="optSupplements"
+					type="number"
+					min="0"
+					max="14"
+					bind:value={optSupplements}
+				/>
+			</div>
+			<div class="optItem" class:selected={optDoublePoulet}>
+				<input
+					id="optDoublePoulet"
+					type="checkbox"
+					bind:checked={optDoublePoulet}
+				/>
+				<label for="optDoublePoulet">Double poulet </label>
+			</div>
+			<div class="optItem" class:selected={optTenders}>
+				<input
+					id="optTenders"
+					type="checkbox"
+					bind:checked={optTenders}
+				/>
+				<label for="optTenders">Tenders</label>
+			</div>
+			<div class="optItem" class:selected={optFalafels}>
+				<input
+					id="optFalafels"
+					type="checkbox"
+					bind:checked={optFalafels}
+				/>
+				<label for="optFalafels">Falafels</label>
+			</div>
 		</div>
-		<div class="optItem" class:selected={optDoublePoulet}>
-			<input
-				id="optDoublePoulet"
-				type="checkbox"
-				bind:checked={optDoublePoulet}
-			/>
-			<label for="optDoublePoulet">Double poulet </label>
-		</div>
-		<div class="optItem" class:selected={optTenders}>
-			<input id="optTenders" type="checkbox" bind:checked={optTenders} />
-			<label for="optTenders">Tenders</label>
-		</div>
+
 		<div class="icon">
 			<img
 				src="/images/save.svg"
@@ -185,8 +212,9 @@
 			<img
 				src="/images/refresh_arrow.svg"
 				alt="refresh arrow"
-				class="icon disabled"
+				class="icon"
 				height="20px"
+				on:click={handleClick}
 			/>
 		</div>
 	</div>
@@ -264,11 +292,20 @@
 		</div>
 	{/if}
 </main>
-<footer>Made with ❤️ by Jums & ...</footer>
+<footer>Made with ❤️ by Jums & Johnny</footer>
 
 <style lang="scss">
 	@import "./styles/vars";
 	@import url("https://rsms.me/inter/inter.css");
+
+	@font-face {
+		font-family: "Product Sans";
+		src: url("/fonts/product-sans/Product_Sans_Regular.ttf")
+			format("truetype");
+	}
+
+	$mainFont: "Product Sans", sans-serif;
+
 	* {
 		font-family: $mainFont;
 	}
@@ -302,37 +339,63 @@
 	}
 
 	.optBar {
-		margin: 7px 0;
 		display: flex;
-		flex-wrap: wrap;
-		& .optItem {
-			margin: 0 9.7px 0 0;
-			border: 2px solid $primary;
-			border-radius: 6.2px;
+		flex-wrap: nowrap;
 
-			& label {
-				margin: 6px;
+		& .optItems {
+			padding: 10px 0;
+			display: flex;
 
-				color: $primary;
-				font-size: 12px;
+			overflow-x: auto;
+			overflow-y: none;
+
+			&::-webkit-scrollbar {
+				width: 5px;
+				height: 5px;
 			}
 
-			& input[type="number"] {
-				height: 22px;
-				width: 21px;
-
-				background-color: $primary;
-				border: none;
-				outline: none;
-
-				color: $white;
-				text-align: center;
+			&::-webkit-scrollbar-track {
+				box-shadow: inset 0 0 5px $soft;
+				border-radius: 10px;
 			}
-			& input[type="checkbox"] {
-				display: none;
+
+			&::-webkit-scrollbar-thumb {
+				background: $primary;
+				border-radius: 999px;
 			}
-			&.selected {
-				background-color: $soft;
+
+			& .optItem {
+				display: flex;
+				align-items: stretch;
+				margin: 0 9.7px 0 0;
+				border: 2px solid $primary;
+				border-radius: 6.2px;
+
+				& label {
+					margin: 3px 6px;
+
+					color: $primary;
+					font-size: 12px;
+					white-space: nowrap;
+				}
+
+				& input[type="number"] {
+					// height: 27px;
+					width: 21px;
+
+					background-color: $primary;
+					border: none;
+					outline: none;
+
+					color: $white;
+					text-align: center;
+				}
+				& input[type="checkbox"] {
+					display: none;
+				}
+				&.selected {
+					background-color: $soft;
+				}
 			}
 		}
 		& .icon {
@@ -342,7 +405,8 @@
 			align-items: center;
 
 			& img {
-				margin: 0 0 0 7px;
+				margin: 0 0 0 10px;
+				cursor: pointer;
 			}
 		}
 	}
